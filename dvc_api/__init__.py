@@ -1,14 +1,14 @@
 from .dvc_cli import DVCLocalCli
 from .dvc_download import (DVCCallbackDownload, DVCDownload, DVCPathDownload,
                            DVCS3Download)
-from .dvc_hook import DVCCommit, DVCHook
+from .client import DVCCommit, Client
 from . import logs
 from . import config
 from . import stats
 
 __all__ = [
     "DVCLocalCli",
-    "DVCHook",
+    "Client",
     "DVCDownload",
     "DVCPathDownload",
     "DVCS3Download",
