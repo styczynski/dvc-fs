@@ -16,7 +16,6 @@ class DVCUpdateMetadata:
     dvc_repo: str
     dvc_files_updated: List[str]
     dvc_files_update_requested: List[str]
-    dag_id: str
     commit_message: Optional[str]
     temp_path: Optional[str]
     commit_hexsha: Optional[str]
