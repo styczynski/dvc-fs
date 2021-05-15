@@ -1,13 +1,13 @@
 # Airflow DVC (1.9.0)
 
-[![PyPI](https://img.shields.io/pypi/v/airflow-dvc?style=flat-square)](https://pypi.org/project/airflow-dvc/)
-[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/covid-genomics/airflow-dvc?style=flat-square)](https://github.com/covid-genomics/airflow-dvc/commits/master)
+[![PyPI](https://img.shields.io/pypi/v/dvc-api?style=flat-square)](https://pypi.org/project/dvc-api/)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/covid-genomics/dvc-api?style=flat-square)](https://github.com/covid-genomics/dvc-api/commits/master)
 
 
 This is an [Airflow](https://airflow.apache.org/) extension that adds support for [DVC](https://dvc.org/doc) operations.
 
 <a href="https://covidgenomics.com/">
-<img src="https://github.com/covid-genomics/airflow-dvc/blob/master/static/cg_logo.png?raw=true" width="200px"/>
+<img src="https://github.com/covid-genomics/dvc-api/blob/master/static/cg_logo.png?raw=true" width="200px"/>
 </a>
 
 
@@ -15,23 +15,23 @@ This is an [Airflow](https://airflow.apache.org/) extension that adds support fo
 
 To install this package please do:
 ```bash
-  $ python3 -m pip install "airflow-dvc==1.9.0"
+  $ python3 -m pip install "dvc-api==1.9.0"
 ```
 
 Or if you are using [Poetry](https://python-poetry.org/) to run Apache Airflow:
 ```bash
   $ poetry add apache-airflow@latest
-  $ poetry add "airflow-dvc@1.9.0"
+  $ poetry add "dvc-api@1.9.0"
 ```
 
 ## What this package provides?
 
 The package provides the following core features:
-* 📊 [DVC Operator view](https://github.com/covid-genomics/airflow-dvc#-dvc-operator-view) (tab to browse all configured DVC operators)
-* 💾 [DVCUpdateOperator](https://github.com/covid-genomics/airflow-dvc#-dvcupdateoperator-uploading) (for uploading data to DVC)
-* ⬇️ [DVCDownloadOperator](https://github.com/covid-genomics/airflow-dvc#%EF%B8%8F-dvcdownloadoperator-downloading) (for downloading data from DVC)
-* 👀 [DVCUpdateSensor](https://github.com/covid-genomics/airflow-dvc#-dvcsensor) (for waiting for a file modification on DVC)
-* 🤖 [DVCHook](https://github.com/covid-genomics/airflow-dvc#-dvchook) (high-level client for DVC)
+* 📊 [DVC Operator view](https://github.com/covid-genomics/dvc-api#-dvc-operator-view) (tab to browse all configured DVC operators)
+* 💾 [DVCUpdateOperator](https://github.com/covid-genomics/dvc-api#-dvcupdateoperator-uploading) (for uploading data to DVC)
+* ⬇️ [DVCDownloadOperator](https://github.com/covid-genomics/dvc-api#%EF%B8%8F-dvcdownloadoperator-downloading) (for downloading data from DVC)
+* 👀 [DVCUpdateSensor](https://github.com/covid-genomics/dvc-api#-dvcsensor) (for waiting for a file modification on DVC)
+* 🤖 [DVCHook](https://github.com/covid-genomics/dvc-api#-dvchook) (high-level client for DVC)
 
 ## Run examples yourself
 
@@ -44,9 +44,9 @@ Please do the following to setup quick Airflow demo:
   $ export REPO="<YOUR_REPO_URL>"
 
   # Install Airflow with Poetry
-  $ mkdir airflow-dvc-test && cd airflow-dvc-test
+  $ mkdir dvc-api-test && cd dvc-api-test
   $ poetry init
-  $ poetry add apache-airflow "airflow-dvc@1.9.0"
+  $ poetry add apache-airflow "dvc-api@1.9.0"
   
   # Configure Airflow paths
   $ export AIRFLOW_HOME=$(pwd)/airflow
@@ -63,7 +63,7 @@ Please do the following to setup quick Airflow demo:
       --email spiderman@superhero.org
   
   # Create example DVC DAGs
-  $ poetry run airflow_dvc generate example_dags
+  $ poetry run dvc_api generate example_dags
   
   # Run Airflow
   $ poetry run airflow webserver --port 8080 &
@@ -76,15 +76,15 @@ Please do the following to setup quick Airflow demo:
 
 After installation, you should be able to access `Browse > DVC Operators` option in the Airflow menu.
 
-<img src="https://github.com/covid-genomics/airflow-dvc/blob/master/static/screen2.png?raw=true" width="400px"/>
+<img src="https://github.com/covid-genomics/dvc-api/blob/master/static/screen2.png?raw=true" width="400px"/>
 
 The `DVC Operators` view allows you to display all configured DVC operators and repositories that they will push the files to/pull from.
 
-<img src="https://github.com/covid-genomics/airflow-dvc/blob/master/static/screen1.png?raw=true" width="800px"/>
+<img src="https://github.com/covid-genomics/dvc-api/blob/master/static/screen1.png?raw=true" width="800px"/>
 
 The `DVC Pushes` view allows you to display all commits created by the DVC operators among all repositories:
 
-<img src="https://github.com/covid-genomics/airflow-dvc/blob/master/static/screen3.png?raw=true" width="800px"/>
+<img src="https://github.com/covid-genomics/dvc-api/blob/master/static/screen3.png?raw=true" width="800px"/>
 
 
 ### 💾 DVCUpdateOperator (Uploading)
@@ -93,7 +93,7 @@ The upload operator supports various types of data inputs that you can feed into
 
 **Uploading a string as a file:**
 ```python
-    from airflow_dvc import DVCUpdateOperator, DVCStringUpload
+    from dvc_api import DVCUpdateOperator, DVCStringUpload
     from datetime import datetime
 
     upload_task = DVCUpdateOperator(
@@ -107,7 +107,7 @@ The upload operator supports various types of data inputs that you can feed into
 
 **Uploading local file using its path:**
 ```python
-    from airflow_dvc import DVCUpdateOperator, DVCPathUpload
+    from dvc_api import DVCUpdateOperator, DVCPathUpload
 
     upload_task = DVCUpdateOperator(
         dvc_repo="<REPO_CLONE_URL>",
@@ -120,7 +120,7 @@ The upload operator supports various types of data inputs that you can feed into
 
 **Upload content generated by a python function:**
 ```python
-    from airflow_dvc import DVCUpdateOperator, DVCCallbackUpload
+    from dvc_api import DVCUpdateOperator, DVCCallbackUpload
 
     upload_task = DVCUpdateOperator(
         dvc_repo="<REPO_CLONE_URL>",
@@ -144,7 +144,7 @@ from io import StringIO
 import pandas as pd
 import requests
 
-from airflow_dvc import DVCUpdateOperator, DVCS3Upload
+from dvc_api import DVCUpdateOperator, DVCS3Upload
 
 s3_conn_id = 's3-conn'
 bucket = 'astro-workshop-bucket'
@@ -234,7 +234,7 @@ from io import StringIO
 import pandas as pd
 import requests
 
-from airflow_dvc import DVCUpdateOperator, DVCS3Upload
+from dvc_api import DVCUpdateOperator, DVCS3Upload
 
 s3_conn_id = 's3-conn'
 bucket = 'astro-workshop-bucket'
@@ -322,7 +322,7 @@ with DAG('intermediary_data_storage_dag',
 
 We can use `VCDownloadOperator` similarily to the `DVCUpdateOperator`. The syntax is the same:
 ```python
-    from airflow_dvc import DVCDownloadOperator, DVCCallbackDownload
+    from dvc_api import DVCDownloadOperator, DVCCallbackDownload
 
     # Download DVC file data/1.txt and print it on the screen
     upload_task = DVCDownloadOperator(
@@ -347,7 +347,7 @@ from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.bash_operator import BashOperator
 
-from airflow_dvc import DVCUpdateSensor
+from dvc_api import DVCUpdateSensor
 
 
 with DAG('dvc_sensor_example', description='Another tutorial DAG',
@@ -376,7 +376,7 @@ with DAG('dvc_sensor_example', description='Another tutorial DAG',
 
 You can perform all the operation manually using DVCHook:
 ```python
-from airflow_dvc import DVCHook, DVCPathUpload
+from dvc_api import DVCHook, DVCPathUpload
 
 hook = DVCHook("<REPO_URL>")
 

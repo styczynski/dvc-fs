@@ -1,39 +1,23 @@
 [tool.poetry]
-name = "airflow_dvc"
+name = "dvc_api"
 version = "1.9.0"
-description = "DVC operator for Airflow"
+description = "DVC API for Airflow"
 authors = ["Piotr Styczyński <piotrsty1@gmail.com>"]
 readme = "README.md"
 include = [
     { path = 'README.md', format = 'wheel' },
     { path = 'README.md', format = 'sdist' },
-    { path = 'example/dags/*', format = 'wheel' },
-    { path = 'example/dags/*', format = 'sdist' },
-    { path = 'example/plugins/*', format = 'wheel' },
-    { path = 'example/plugins/*', format = 'sdist' },
-    { path = 'pyproject.toml', format = 'wheel' },
-    { path = 'pyproject.toml', format = 'sdist' },
     "README.md",
-    "example",
-    "example/dags",
-    "example/dags/dvc_sensor_example.py",
-    "example/dags/dvc_upload_example.py",
-    "example/plugins",
-    "example/plugins/dvc.py",
     "pyproject.toml"
 ]
 
 [tool.poetry.scripts]
 publish = 'publish:publish'
-airflow_dvc = 'airflow_dvc.cli.entrypoint:run_cli'
-
 
 [tool.poetry.dependencies]
 python = "^3.8"
 SQLAlchemy = "<1.4.0"
 GitPython = "^3.1.14"
-apache-airflow = ">=2.0.0"
-apache-airflow-providers-amazon = "^1.3.0"
 typer = "^0.3.2"
 semver = "^2.13.0"
 semantic-version = "^2.8.5"
@@ -58,7 +42,7 @@ gitchangelog = "^3.0.4"
 [tool.poetry.plugins]
 
 [tool.poetry.plugins."airflow.plugins"]
-"airflow_dvc_plugin" = "airflow_dvc:DVCPlugin"
+"dvc_api_plugin" = "dvc_api:DVCPlugin"
 
 [tool.black]
 line-length = 79
