@@ -10,9 +10,9 @@ import sys
 import semantic_version
 import threading
 from io import StringIO
-from airflow_dvc.exceptions import DVCCliCommandError, DVCMissingExecutableError, DVCInvalidVersion
-from airflow_dvc.logs import LOGS
-from airflow_dvc.config import get_config
+from dvc_api.exceptions import DVCCliCommandError, DVCMissingExecutableError, DVCInvalidVersion
+from dvc_api.logs import LOGS
+from dvc_api.config import get_config
 
 try:
     from dvc.main import main as call_dvc_main
@@ -69,7 +69,7 @@ class DVCLocalCli:
     def _check_dvc_shell_executable() -> semantic_version.Version:
         """
         Check if DVC executable is accessible from the shell.
-        Raises airflow_dvc.exceptions.DVCMissingExecutableError if the executable is not found.
+        Raises dvc_api.exceptions.DVCMissingExecutableError if the executable is not found.
         """
         cmd = " ".join(["dvc", "version"])
         p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)

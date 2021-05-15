@@ -13,17 +13,14 @@ import time
 from dataclasses import dataclass
 from typing import Any, List, Optional, TextIO, Tuple
 
-from airflow.hooks.base import BaseHook
-from airflow.models.dag import DAG
-from airflow.models.dagbag import DagBag
 from git import Repo, exc
 
-from airflow_dvc.dvc_cli import DVCLocalCli
-from airflow_dvc.dvc_download import DVCDownload
-from airflow_dvc.dvc_upload import DVCUpload
-from airflow_dvc.exceptions import DVCFileMissingError, DVCGitRepoNotAccessibleError, DVCGitUpdateError
-from airflow_dvc.logs import LOGS
-from airflow_dvc.stats import DVCUpdateMetadata, DVCDownloadMetadata
+from dvc_api.dvc_cli import DVCLocalCli
+from dvc_api.dvc_download import DVCDownload
+from dvc_api.dvc_upload import DVCUpload
+from dvc_api.exceptions import DVCFileMissingError, DVCGitRepoNotAccessibleError, DVCGitUpdateError
+from dvc_api.logs import LOGS
+from dvc_api.stats import DVCUpdateMetadata, DVCDownloadMetadata
 
 try:
     # flake8: noqa
@@ -98,7 +95,7 @@ try:
         :param repo: Repo URL
         :param path: DVC file path
         :param empty_fallback: Create empty file when it does not exists remotely
-          Otherwise function throws airflow_dvc.exceptions.DVCFileMissingError
+          Otherwise function throws dvc_api.exceptions.DVCFileMissingError
         :returns: Descriptor to the file contents
         """
         try:
@@ -131,7 +128,7 @@ except ModuleNotFoundError:
         :param repo: Repo URL
         :param path: DVC file path
         :param empty_fallback: Create empty file when it does not exists remotely
-          Otherwise function throws airflow_dvc.exceptions.DVCFileMissingError
+          Otherwise function throws dvc_api.exceptions.DVCFileMissingError
         :returns: Descriptor to the file contents
         """
         repo_url = repo
@@ -436,7 +433,7 @@ class DVCHook(BaseHook):
 
         :param path: Path inside the DVC repo to the file you want to access
         :param empty_fallback: Create empty file when it does not exists remotely
-          Otherwise with ... as ... will throw airflow_dvc.exceptions.DVCFileMissingError
+          Otherwise with ... as ... will throw dvc_api.exceptions.DVCFileMissingError
         :returns: DVCFile handler corresponding to the given file
         """
         return DVCFile(
