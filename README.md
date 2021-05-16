@@ -21,6 +21,25 @@ Or with Poetry:
 **Using via PyFielsystem2:**
 
 The dvc-fs package is integrated with [PyFilesystem](https://github.com/PyFilesystem/pyfilesystem2), so you can do:
+
+```python3
+from fs import open_fs
+fs1 = open_fs("dvc://github.com/covid-genomics/data-artifacts") # Clone by https
+fs2 = open_fs("dvc://ssh@github.com/covid-genomics/data-artifacts") # Clone by ssh
+fs3 = open_fs("dvc://<PAT>@github.com/covid-genomics/data-artifacts") # Clone by https with personal access token
+ # You can also use normal HTTPS and create env variable GIT_TOKEN
+ # In that case Personal Access Token will be injected in the clone url
+```
+
+Usage:
+```python3
+from fs import open_fs
+with open_fs("dvc://github.com/covid-genomics/data-artifacts") as fs:
+    fs.writetext("fs_test/fasta2.txt", "TEST")
+```
+
+** Explicitly creating DVCFS: **
+
 ```python3
 from dvc_fs.fs import DVCFS
 with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:

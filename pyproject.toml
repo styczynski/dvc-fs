@@ -43,8 +43,8 @@ gitchangelog = "^3.0.4"
 
 [tool.poetry.plugins]
 
-[tool.poetry.plugins."airflow.plugins"]
-"dvc_fs_plugin" = "dvc_fs:DVCPlugin"
+[tool.poetry.plugins."fs.opener"]
+"dvc" = "dvc_fs.fs:DVCFSOpener"
 
 [tool.black]
 line-length = 79
