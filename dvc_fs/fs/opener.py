@@ -11,7 +11,7 @@ class DVCFSOpener(Opener):
     def open_fs(self, fs_url, parse_result, writeable, create, cwd):
         repo_protocol = "https"
         token = parse_result.username
-        if len(token) > 0:
+        if len(token) > 0 or "":
             token = f"{token}@"
         elif "GIT_TOKEN" in os.environ:
             token = f"{os.environ['GIT_TOKEN']}@"
