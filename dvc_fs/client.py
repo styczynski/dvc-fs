@@ -6,22 +6,23 @@ High-level DVC client for building aced workflows.
 import datetime
 import io
 import os
+import pathlib
 import shutil
 import tempfile
-import pathlib
 import time
-from pathlib import Path
 from dataclasses import dataclass
-from typing import Any, List, Optional, TextIO, Tuple, Text
+from pathlib import Path
+from typing import Any, List, Optional, Text, TextIO, Tuple
 
 from git import Repo, exc
 
 from dvc_fs.dvc_cli import DVCLocalCli
 from dvc_fs.dvc_download import DVCDownload
-from dvc_fs.dvc_upload import DVCUpload, DVCPathUpload
-from dvc_fs.exceptions import DVCFileMissingError, DVCGitRepoNotAccessibleError, DVCGitUpdateError
+from dvc_fs.dvc_upload import DVCPathUpload, DVCUpload
+from dvc_fs.exceptions import (DVCFileMissingError,
+                               DVCGitRepoNotAccessibleError, DVCGitUpdateError)
 from dvc_fs.logs import LOGS
-from dvc_fs.stats import DVCUpdateMetadata, DVCDownloadMetadata
+from dvc_fs.stats import DVCDownloadMetadata, DVCUpdateMetadata
 
 try:
     # flake8: noqa
@@ -57,10 +58,12 @@ class ClonedRepo:
     repo: Repo  # Git repo handler
     dvc: DVCLocalCli  # DVC interface
 
+
 EXCLUDED_GIT_SEARCH_DIRECTORIES = [
     ".git",
     ".dvc",
 ]
+
 
 def clone_repo(
     dvc_repo: str,
@@ -95,6 +98,7 @@ def clone_repo(
         dvc=dvc,
     )
 
+
 def dvc_open_clone(
     repo: str,
     path: str,
@@ -112,7 +116,9 @@ def dvc_open_clone(
     """
     repo_url = repo
     client._repo_cache = clone_repo(repo, repo=client._repo_cache)
-    if not os.path.isfile(os.path.join(client._repo_cache.clone_path, f"{path}.dvc")):
+    if not os.path.isfile(
+        os.path.join(client._repo_cache.clone_path, f"{path}.dvc")
+    ):
         if empty_fallback:
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
@@ -122,9 +128,12 @@ def dvc_open_clone(
         if empty_fallback:
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
-    with open(os.path.join(client._repo_cache.clone_path, path), "r") as dvc_file:
+    with open(
+        os.path.join(client._repo_cache.clone_path, path), "r"
+    ) as dvc_file:
         input_stream = io.StringIO(dvc_file.read())
     return input_stream
+
 
 try:
     import dvc.api as dvc_fs
@@ -181,12 +190,14 @@ def repo_add_dvc_files(repo: Repo, files: List[str]):
     for dvc_file in dvc_files:
         repo.index.add([dvc_file])
 
+
 @dataclass
 class DVCEntryMetadata:
     path: str
     name: str
     dvc_repo: str
     is_dir: bool
+
 
 class DVCFile:
     """
@@ -196,7 +207,7 @@ class DVCFile:
     path: str  # File path
     dvc_repo: str  # Clone URL for the GIT repository that have DVC configured
     descriptor = None  # File-like object used for access
-    empty_fallback: bool # Use empty file as fallback when it does not exists remotely
+    empty_fallback: bool  # Use empty file as fallback when it does not exists remotely
     cloned_repo: Optional[ClonedRepo]
     mode: str
 
@@ -234,11 +245,19 @@ class DVCFile:
                     client=self.client,
                 )
             else:
-                self.client._repo_cache = clone_repo(self.dvc_repo, repo=self.client._repo_cache)
-                if os.path.isfile(os.path.join(self.client._repo_cache.clone_path, f"{self.path}.dvc")):
+                self.client._repo_cache = clone_repo(
+                    self.dvc_repo, repo=self.client._repo_cache
+                )
+                if os.path.isfile(
+                    os.path.join(
+                        self.client._repo_cache.clone_path, f"{self.path}.dvc"
+                    )
+                ):
                     # Pull the file
                     self.client._repo_cache.dvc.pull_path(self.path)
-                self._tmp_path = os.path.join(self.client._repo_cache.clone_path, self.path)
+                self._tmp_path = os.path.join(
+                    self.client._repo_cache.clone_path, self.path
+                )
                 self.descriptor = open(self._tmp_path, self.mode)
                 return self.descriptor
         return self.descriptor.__enter__()
@@ -297,7 +316,9 @@ class Client:
         :param paths: Paths to query the last modification date (max of dates will be taken)
         :returns: Time of last modification of the given files
         """
-        self._repo_cache = clone_repo(self.dvc_repo, self.temp_path, repo=self._repo_cache)
+        self._repo_cache = clone_repo(
+            self.dvc_repo, self.temp_path, repo=self._repo_cache
+        )
         commits = list(
             self._repo_cache.repo.iter_commits(
                 max_count=100,
@@ -328,12 +349,14 @@ class Client:
                 dvc_repo=self.dvc_repo,
                 downloaded_dvc_files=[],
                 downloaded_dvc_files_sizes=[],
-                duration=time.time()-start,
+                duration=time.time() - start,
             )
 
         file_stats: List[Tuple[str, int]] = []
         for downloaded_file in downloaded_files:
-            with self.get(downloaded_file.dvc_path, empty_fallback=empty_fallback) as data_input:
+            with self.get(
+                downloaded_file.dvc_path, empty_fallback=empty_fallback
+            ) as data_input:
                 content = data_input.read()
                 downloaded_file.write(content)
                 file_stats.append((downloaded_file.dvc_path, len(content)))
@@ -341,34 +364,53 @@ class Client:
         return DVCDownloadMetadata(
             dvc_repo=self.dvc_repo,
             downloaded_dvc_files=[dvc_path for (dvc_path, _) in file_stats],
-            downloaded_dvc_files_sizes=[file_size for (_, file_size) in file_stats],
+            downloaded_dvc_files_sizes=[
+                file_size for (_, file_size) in file_stats
+            ],
             duration=time.time() - start,
         )
 
     def scan_dir(self, path=".") -> List[DVCEntryMetadata]:
         if path.startswith("/"):
             path = path[1:]
-        self._repo_cache = clone_repo(self.dvc_repo, self.temp_path, repo=self._repo_cache)
+        self._repo_cache = clone_repo(
+            self.dvc_repo, self.temp_path, repo=self._repo_cache
+        )
         search_path = os.path.join(self._repo_cache.clone_path, path)
-        entities = [os.path.join(search_path, entity) for entity in os.listdir(search_path)]
+        entities = [
+            os.path.join(search_path, entity)
+            for entity in os.listdir(search_path)
+        ]
         filtered_entities: List[DVCEntryMetadata] = []
         for entity in entities:
-            if os.path.isdir(entity) and os.path.basename(entity) not in EXCLUDED_GIT_SEARCH_DIRECTORIES:
-                filtered_entities.append(DVCEntryMetadata(
-                    path=os.path.relpath(entity, self._repo_cache.clone_path),
-                    name=os.path.basename(entity),
-                    dvc_repo=self.dvc_repo,
-                    is_dir=True,
-                ))
+            if (
+                os.path.isdir(entity)
+                and os.path.basename(entity)
+                not in EXCLUDED_GIT_SEARCH_DIRECTORIES
+            ):
+                filtered_entities.append(
+                    DVCEntryMetadata(
+                        path=os.path.relpath(
+                            entity, self._repo_cache.clone_path
+                        ),
+                        name=os.path.basename(entity),
+                        dvc_repo=self.dvc_repo,
+                        is_dir=True,
+                    )
+                )
             elif os.path.isfile(entity) and entity.endswith(".dvc"):
                 filename, file_extension = os.path.splitext(entity)
                 if file_extension == ".dvc":
-                    filtered_entities.append(DVCEntryMetadata(
-                        path=os.path.relpath(filename, self._repo_cache.clone_path),
-                        name=os.path.basename(filename),
-                        dvc_repo=self.dvc_repo,
-                        is_dir=False,
-                    ))
+                    filtered_entities.append(
+                        DVCEntryMetadata(
+                            path=os.path.relpath(
+                                filename, self._repo_cache.clone_path
+                            ),
+                            name=os.path.basename(filename),
+                            dvc_repo=self.dvc_repo,
+                            is_dir=False,
+                        )
+                    )
         return filtered_entities
 
     def list_files(self, path=".") -> List[str]:
@@ -400,7 +442,9 @@ class Client:
                 temp_path=self.temp_path,
                 commit_message=None,
                 dvc_files_updated=[],
-                dvc_files_update_requested=[file.dvc_path for file in updated_files],
+                dvc_files_update_requested=[
+                    file.dvc_path for file in updated_files
+                ],
                 commit_hexsha=None,
                 committed_date=None,
                 duration=time.time() - start,
@@ -418,11 +462,17 @@ class Client:
             commit_message = f"{commit_message}\n{commit_message_extra}"
 
         LOGS.dvc_hook.info("Add files to DVC")
-        self._repo_cache = clone_repo(self.dvc_repo, self.temp_path, repo=self._repo_cache)
+        self._repo_cache = clone_repo(
+            self.dvc_repo, self.temp_path, repo=self._repo_cache
+        )
         for file in updated_files:
             with file as input_file:
-                output_dvc_path = os.path.join(self._repo_cache.clone_path, file.dvc_path)
-                pathlib.Path(os.path.dirname(os.path.abspath(output_dvc_path))).mkdir(parents=True, exist_ok=True)
+                output_dvc_path = os.path.join(
+                    self._repo_cache.clone_path, file.dvc_path
+                )
+                pathlib.Path(
+                    os.path.dirname(os.path.abspath(output_dvc_path))
+                ).mkdir(parents=True, exist_ok=True)
                 # Prevents overwriting the file
                 if file.should_copy_path(os.path.abspath(output_dvc_path)):
                     with open(output_dvc_path, "w") as out:
@@ -434,7 +484,10 @@ class Client:
 
         try:
             LOGS.dvc_hook.info("Add DVC files to git")
-            repo_add_dvc_files(self._repo_cache.repo, [file.dvc_path for file in updated_files])
+            repo_add_dvc_files(
+                self._repo_cache.repo,
+                [file.dvc_path for file in updated_files],
+            )
 
             LOGS.dvc_hook.info("Commit")
             commit = self._repo_cache.repo.index.commit(commit_message)
@@ -442,21 +495,27 @@ class Client:
             LOGS.dvc_hook.info("Git push")
             self._repo_cache.repo.remotes.origin.push()
         except exc.GitError as e:
-            raise DVCGitUpdateError(self.dvc_repo, [file.dvc_path for file in updated_files], e)
+            raise DVCGitUpdateError(
+                self.dvc_repo, [file.dvc_path for file in updated_files], e
+            )
 
         meta = DVCUpdateMetadata(
             dvc_repo=self.dvc_repo,
             temp_path=self._repo_cache.temp_dir.name,
             commit_message=commit_message,
             dvc_files_updated=[file.dvc_path for file in updated_files],
-            dvc_files_update_requested=[file.dvc_path for file in updated_files],
+            dvc_files_update_requested=[
+                file.dvc_path for file in updated_files
+            ],
             commit_hexsha=commit.hexsha,
             committed_date=commit.committed_date,
             duration=time.time() - start,
         )
         return meta
 
-    def get(self, path: str, empty_fallback: bool = False, mode: str = "r") -> DVCFile:
+    def get(
+        self, path: str, empty_fallback: bool = False, mode: str = "r"
+    ) -> DVCFile:
         """
         Returns existing DVC file handler.
         This is useful to read the files.

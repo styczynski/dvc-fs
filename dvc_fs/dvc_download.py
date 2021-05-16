@@ -58,7 +58,7 @@ class DVCCallbackDownload(DVCDownload):
     """
 
     # Fields to apply Airflow templates
-    template_fields = ['dvc_path']
+    template_fields = ["dvc_path"]
 
     callback: Callable[[str], None]
 
@@ -79,7 +79,7 @@ class DVCPathDownload(DVCDownload):
     """
 
     # Fields to apply Airflow templates
-    template_fields = ['dvc_path', 'src']
+    template_fields = ["dvc_path", "src"]
 
     # Path to the local file that will be written
     src: str
@@ -94,4 +94,3 @@ class DVCPathDownload(DVCDownload):
     def write(self, content: str):
         with open(self.src, "w") as out:
             out.write(content)
-

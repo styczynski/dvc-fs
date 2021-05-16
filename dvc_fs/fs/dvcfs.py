@@ -1,40 +1,20 @@
-"""Manage filesystems in temporary locations.
-A temporary filesytem is stored in a location defined by your OS
-(``/tmp`` on linux). The contents are deleted when the filesystem
-is closed.
-A `TempFS` is a good way of preparing a directory structure in advance,
-that you can later copy. It can also be used as a temporary data store.
-"""
+from __future__ import print_function, unicode_literals
 
-from __future__ import print_function
-from __future__ import unicode_literals
-
+import itertools
 import shutil
 import tempfile
-import typing
-import itertools
-import os
-import stat
-from fs.error_tools import convert_os_errors
-from fs.info import Info
-from fs._fscompat import fsencode, fsdecode
-from typing import List, Text, Optional, Iterator, Tuple, Collection
+from typing import Collection, Iterator, List, Optional, Text, Tuple
 
 import six
-
-from dvc_fs import Client
-from dvc_fs.dvc_upload import DVCPathUpload
-
 from fs import errors
+from fs.info import Info
 from fs.osfs import OSFS
 
-if typing.TYPE_CHECKING:
-    from typing import Optional, Text
+from dvc_fs import Client
 
 
 @six.python_2_unicode_compatible
 class DVCFS(OSFS):
-
     def __init__(
         self,
         dvc_repo: str,
@@ -52,7 +32,9 @@ class DVCFS(OSFS):
 
         self.identifier = identifier.replace("/", "-")
 
-        self._temp_dir = tempfile.mkdtemp(identifier or "fsDVCFS", dir=temp_dir)
+        self._temp_dir = tempfile.mkdtemp(
+            identifier or "fsDVCFS", dir=temp_dir
+        )
         self._client = Client(dvc_repo, temp_path=self._temp_dir)
 
         super(DVCFS, self).__init__(self._temp_dir)
@@ -92,7 +74,6 @@ class DVCFS(OSFS):
         with self._client.get(path, mode="w") as out:
             out.write(contents)
 
-
     def openbin(self, path, mode="r", buffering=-1, **options):
         self.check()
 
@@ -114,14 +95,18 @@ class DVCFS(OSFS):
             iter_info = itertools.islice(iter_info, start, end)
         return iter_info
 
-    def _scandir(self, path: Text, namespaces: Optional[Collection[Text]] = None) -> Iterator[Info]:
+    def _scandir(
+        self, path: Text, namespaces: Optional[Collection[Text]] = None
+    ) -> Iterator[Info]:
         for meta in self._client.scan_dir(path):
-            yield Info(dict(
-                basic=dict(
-                    name=meta.name,
-                    is_dir=meta.is_dir,
-                ),
-            ))
+            yield Info(
+                dict(
+                    basic=dict(
+                        name=meta.name,
+                        is_dir=meta.is_dir,
+                    ),
+                )
+            )
 
     def clean(self):
         # type: () -> None
@@ -136,7 +121,9 @@ class DVCFS(OSFS):
         except Exception as error:
             if not self._ignore_clean_errors:
                 raise errors.OperationFailed(
-                    msg="failed to remove temporary directory; {}".format(error),
+                    msg="failed to remove temporary directory; {}".format(
+                        error
+                    ),
                     exc=error,
                 )
         self._cleaned = True
