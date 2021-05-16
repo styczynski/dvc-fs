@@ -11,8 +11,7 @@ import shutil
 import tempfile
 import time
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any, List, Optional, Text, TextIO, Tuple
+from typing import Any, List, Optional, TextIO, Tuple
 
 from git import Repo, exc
 

@@ -10,7 +10,7 @@ from fs import errors
 from fs.info import Info
 from fs.osfs import OSFS
 
-from dvc_fs import Client
+from dvc_fs.client import Client
 
 
 @six.python_2_unicode_compatible
@@ -18,10 +18,10 @@ class DVCFS(OSFS):
     def __init__(
         self,
         dvc_repo: str,
-        identifier="__dvcfs__",  # type: Text
-        temp_dir=None,  # type: Optional[Text]
-        auto_clean=True,  # type: bool
-        ignore_clean_errors=True,  # type: bool
+        identifier: Text = "__dvcfs__",
+        temp_dir: Optional[Text] = None,
+        auto_clean: bool = True,
+        ignore_clean_errors: bool = True,
     ):
         self._cleaned = False
         self.identifier = identifier
@@ -108,8 +108,7 @@ class DVCFS(OSFS):
                 )
             )
 
-    def clean(self):
-        # type: () -> None
+    def clean(self) -> None:
         """Clean (delete) temporary files created by this filesystem."""
         if self._cleaned:
             return
