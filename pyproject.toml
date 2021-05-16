@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "dvc_api"
-version = "1.9.0"
-description = "DVC API for Airflow"
+name = "dvc_fs"
+version = "0.1.0"
+description = "DVC API/filesystem utilities"
 authors = ["Piotr Styczyński <piotrsty1@gmail.com>"]
 readme = "README.md"
 include = [
@@ -22,9 +22,11 @@ typer = "^0.3.2"
 semver = "^2.13.0"
 semantic-version = "^2.8.5"
 toml = "^0.10.2"
+fs = "^2.4.13"
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
+fs = ["fs>=2.4.13"]
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.1"
@@ -42,7 +44,7 @@ gitchangelog = "^3.0.4"
 [tool.poetry.plugins]
 
 [tool.poetry.plugins."airflow.plugins"]
-"dvc_api_plugin" = "dvc_api:DVCPlugin"
+"dvc_fs_plugin" = "dvc_fs:DVCPlugin"
 
 [tool.black]
 line-length = 79

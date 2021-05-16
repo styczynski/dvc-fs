@@ -18,7 +18,6 @@ def get_config() -> DVCConfig:
     global _pyproject_config
     if _pyproject_config is None:
         config = toml.load(os.path.join(os.path.dirname(__file__), "..", "pyproject.toml"))
-        print(config)
         extras = config["tool"]["poetry"]["extras"]["dvc"]
         dvc_constraint = [cons for cons in extras if "dvc" in cons][0].replace("dvc", "")
         _pyproject_config = DVCConfig(

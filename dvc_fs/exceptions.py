@@ -6,7 +6,7 @@ Definitions of possible DVC errors
 from typing import Optional, List
 from git import exc
 from semantic_version import Version, SimpleSpec
-from dvc_api.logs import LOGS
+from dvc_fs.logs import LOGS
 
 
 class DVCFileMissingError(FileNotFoundError):
@@ -118,7 +118,7 @@ def add_log_exception_handler(
             return inner_fn(*args, **kwargs)
         except Exception as e:
             if not disable_error_message:
-                LOGS.exceptions.error(f"Error was thrown inside the dvc-api code. "
+                LOGS.exceptions.error(f"Error was thrown inside the dvc-fs code. "
                                       f"This is just a useful message to help with Airflow "
                                       f"pipeline debugging. The error will be reraised. Error message: {e}")
             if ignore_errors:

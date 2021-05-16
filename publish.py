@@ -9,11 +9,11 @@ from pathlib import Path
 
 from poetry_publish.publish import poetry_publish
 
-import dvc_api
+import dvc_fs
 
 
 def publish():
     poetry_publish(
-        package_root=Path(dvc_api.__file__).parent.parent,
-        version=dvc_api.__version__,
+        package_root=Path(dvc_fs.__file__).parent.parent,
+        version=dvc_fs.__version__,
     )
