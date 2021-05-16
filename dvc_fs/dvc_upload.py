@@ -5,6 +5,7 @@ Abstraction for DVC upload sources.
 import inspect
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Optional
+import os
 
 
 try:
@@ -49,6 +50,9 @@ class DVCUpload(metaclass=ABCMeta):
         if self._resource is not None:
             self.close(self._resource)
         self._resource = None
+
+    def should_copy_path(self, src_path: str):
+        return True
 
     @abstractmethod
     def describe_source(self) -> str:
@@ -122,6 +126,9 @@ class DVCPathUpload(DVCUpload):
     def __init__(self, dvc_path: str, local_path: str):
         super().__init__(dvc_path=dvc_path)
         self.src = local_path
+
+    def should_copy_path(self, src_path: str):
+        return os.path.abspath(src_path) != os.path.abspath(self.src)
 
     def describe_source(self) -> str:
         return f"Path {self.src}"
