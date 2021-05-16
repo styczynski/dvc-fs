@@ -1,5 +1,10 @@
 # DVC filesystem abstraction layer (0.1.0)
 
+This package provides high-level API work easy writing/reading/listing files inside the DVC.
+It can be used for automation systems integrated with data pipelines.
+
+dvc-fs provides basic compatibility (Still work in progress) with [PyFilesystem2 API](https://github.com/PyFilesystem/pyfilesystem2).
+
 ## Installation
 
 To install this package please do:
