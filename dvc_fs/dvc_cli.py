@@ -7,16 +7,20 @@ import io
 import os
 import subprocess
 import sys
-import semantic_version
 import threading
 from io import StringIO
-from dvc_fs.exceptions import DVCCliCommandError, DVCMissingExecutableError, DVCInvalidVersion
-from dvc_fs.logs import LOGS
+
+import semantic_version
+
 from dvc_fs.config import get_config
+from dvc_fs.exceptions import (DVCCliCommandError, DVCInvalidVersion,
+                               DVCMissingExecutableError)
+from dvc_fs.logs import LOGS
 
 try:
-    from dvc.main import main as call_dvc_main
     from dvc import __version__ as _call_dvc_main_version
+    from dvc.main import main as call_dvc_main
+
     call_dvc_main_version = semantic_version.Version(_call_dvc_main_version)
 except ModuleNotFoundError:
     call_dvc_main = None
@@ -72,17 +76,27 @@ class DVCLocalCli:
         Raises dvc_fs.exceptions.DVCMissingExecutableError if the executable is not found.
         """
         cmd = " ".join(["dvc", "version"])
-        p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+        p = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stdin=subprocess.PIPE
+        )
         out, err = p.communicate()
         if p.returncode != 0:
             raise DVCMissingExecutableError()
         try:
-            text = out.decode().split("\n")[0].replace("DVC version: ", "").split("(")[0].replace(" ", "")
+            text = (
+                out.decode()
+                .split("\n")[0]
+                .replace("DVC version: ", "")
+                .split("(")[0]
+                .replace(" ", "")
+            )
             ver = semantic_version.Version(text)
             if not get_config().dvc_version_constraint.match(ver):
                 raise DVCInvalidVersion(
                     "DVC executable in your PATH has invalid version",
-                    ver, get_config().dvc_version_constraint)
+                    ver,
+                    get_config().dvc_version_constraint,
+                )
             return ver
         except ValueError:
             raise DVCMissingExecutableError()
@@ -113,7 +127,9 @@ class DVCLocalCli:
         if call_dvc_main is None:
             use_shell = True
         else:
-            if not get_config().dvc_version_constraint.match(call_dvc_main_version):
+            if not get_config().dvc_version_constraint.match(
+                call_dvc_main_version
+            ):
                 # DVC package has invalid version
                 use_shell = True
 
@@ -121,7 +137,13 @@ class DVCLocalCli:
             cmd = " ".join(["dvc", *args])
             LOGS.dvc.debug(f"Spawn process (DVC): {cmd} (cwd={path})")
             DVCLocalCli._check_dvc_shell_executable()
-            p = subprocess.Popen(cmd, shell=True, cwd=path, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+            p = subprocess.Popen(
+                cmd,
+                shell=True,
+                cwd=path,
+                stdout=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+            )
             out, err = p.communicate()
             if p.returncode != 0:
                 raise DVCCliCommandError(cmd, out.decode(), p.returncode, path)

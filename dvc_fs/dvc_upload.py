@@ -3,10 +3,9 @@ Abstraction for DVC upload sources.
 @Piotr Styczyński 2021
 """
 import inspect
+import os
 from abc import ABCMeta, abstractmethod
 from typing import Callable, Optional
-import os
-
 
 try:
     from StringIO import StringIO  # # for Python 2
@@ -92,7 +91,7 @@ class DVCCallbackUpload(DVCUpload):
     """
 
     # Fields to apply Airflow templates
-    template_fields = ['dvc_path']
+    template_fields = ["dvc_path"]
 
     # Path to the local file
     data_provider: Callable[[], str]
@@ -118,7 +117,7 @@ class DVCPathUpload(DVCUpload):
     """
 
     # Fields to apply Airflow templates
-    template_fields = ['src', 'dvc_path']
+    template_fields = ["src", "dvc_path"]
 
     # Path to the local file
     src: str
@@ -142,7 +141,6 @@ class DVCPathUpload(DVCUpload):
         resource.close()
 
 
-
 class DVCStringUpload(DVCUpload):
     """
     Upload DVC object from a string.
@@ -153,7 +151,7 @@ class DVCStringUpload(DVCUpload):
     """
 
     # Fields to apply Airflow templates
-    template_fields = ['content', 'dvc_path']
+    template_fields = ["content", "dvc_path"]
 
     # Content of the file
     content: str
