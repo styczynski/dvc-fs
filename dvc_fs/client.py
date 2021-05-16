@@ -257,7 +257,10 @@ class DVCFile:
                 self._tmp_path = os.path.join(
                     self.client._repo_cache.clone_path, self.path
                 )
-                self.descriptor = open(self._tmp_path, self.mode)
+                pathlib.Path(
+                    os.path.dirname(os.path.abspath(self._tmp_path))
+                ).mkdir(parents=True, exist_ok=True)
+                self.descriptor = open(self._tmp_path, self.mode).__enter__()
                 return self.descriptor
         return self.descriptor.__enter__()
 
@@ -266,8 +269,7 @@ class DVCFile:
         Close file (close file-like accessor returned by __enter__)
         """
         if self.descriptor is not None:
-            self.descriptor.flush()
-            self.descriptor.close()
+            self.descriptor.__exit__(type, value, traceback)
         if self.mode in ["r", "rb", "r+", "rb+"]:
             pass
         else:
