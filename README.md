@@ -18,6 +18,28 @@ Or with Poetry:
 
 ### Usage
 
+**Using via PyFielsystem2:**
+
+The dvc-fs package is integrated with [PyFilesystem](https://github.com/PyFilesystem/pyfilesystem2), so you can do:
+```python3
+from dvc_fs.fs import DVCFS
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+    for path in fs.walk.files():
+        # Print all paths in repo
+        print(path)
+```
+
+**Reading/writing:**
+
+Read and write contents:
+```python3
+from dvc_fs.fs import DVCFS
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+    contents = fs.readtext('data/1.txt')
+    print(f"THIS IS CONTENTS: {contents}")
+    fs.writetext("test.txt", contents+"!")
+```
+
 Basically you can directly use DVC high-level api via the Client:
 ```python3
 from dvc_fs.client import Client, DVCPathUpload
@@ -68,28 +90,6 @@ from dvc_fs import Client, DVCCallbackDownload
 Client("<DVC_REPO>").download([
     DVCCallbackDownload("data/1.txt", lambda content: print(content)),
 ])
-```
-
-**Using via PyFielsystem2:**
-
-The dvc-fs package is integrated with [PyFilesystem](https://github.com/PyFilesystem/pyfilesystem2), so you can do:
-```python3
-from dvc_fs.fs import DVCFS
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
-    for path in fs.walk.files():
-        # Print all paths in repo
-        print(path)
-```
-
-**Reading/writing:**
-
-Read and write contents:
-```python3
-from dvc_fs.fs import DVCFS
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
-    contents = fs.readtext('data/1.txt')
-    print(f"THIS IS CONTENTS: {contents}")
-    fs.writetext("test.txt", contents+"!")
 ```
 
 ### Versioning
