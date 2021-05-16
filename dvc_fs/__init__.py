@@ -2,7 +2,8 @@ from . import config, fs, logs, stats
 from .client import Client, DVCCommit
 from .dvc_cli import DVCLocalCli
 from .dvc_download import DVCCallbackDownload, DVCDownload, DVCPathDownload
-from .dvc_upload import DVCCallbackUpload, DVCUpload, DVCStringUpload, DVCPathUpload
+from .dvc_upload import (DVCCallbackUpload, DVCPathUpload, DVCStringUpload,
+                         DVCUpload)
 
 __all__ = [
     "DVCLocalCli",
