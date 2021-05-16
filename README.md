@@ -1,4 +1,4 @@
-# Airflow DVC (0.1.0)
+# DVC filesystem abstraction layer (0.1.0)
 
 ## Installation
 
