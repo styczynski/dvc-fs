@@ -59,8 +59,17 @@ class DVCFS(OSFS):
         encoding: Optional[Text] = None,
         errors: Optional[Text] = None,
         newline: Text = "",
-    ):
+    ) -> Text:
         with self._client.get(path) as input:
+            return input.read()
+
+    def readbytes(
+        self,
+        path: Text,
+        errors: Optional[Text] = None,
+        newline: Text = "",
+    ) -> bytes:
+        with self._client.get(path, mode="rb") as input:
             return input.read()
 
     def writetext(
@@ -72,6 +81,16 @@ class DVCFS(OSFS):
         newline: Text = "",
     ) -> None:
         with self._client.get(path, mode="w") as out:
+            out.write(contents)
+
+    def writebytes(
+        self,
+        path: Text,
+        contents: bytes,
+        errors: Optional[Text] = None,
+        newline: Text = "",
+    ) -> None:
+        with self._client.get(path, mode="wb") as out:
             out.write(contents)
 
     def openbin(self, path, mode="r", buffering=-1, **options):
