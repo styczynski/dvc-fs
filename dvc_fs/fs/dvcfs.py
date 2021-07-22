@@ -53,6 +53,9 @@ class DVCFS(OSFS):
     def listdir(self, path: str = "/") -> List[Text]:
         return self._client.list_files(path)
 
+    def exists(self, path: Text) -> bool:
+        return self._client.exists(path)
+
     def readtext(
         self,
         path: Text,

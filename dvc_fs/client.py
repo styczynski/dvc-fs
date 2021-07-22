@@ -231,6 +231,17 @@ class DVCFile:
         self.mode = mode
         self._tmp_path = None
 
+    def exists(self) -> bool:
+        """
+        Check if the file exists on the remote
+        """
+        try:
+            with self:
+                pass
+        except DVCFileMissingError:
+            return False
+        return True
+
     def __enter__(self):
         """
         Open file for read and return file-like accessor
@@ -513,6 +524,14 @@ class Client:
             duration=time.time() - start,
         )
         return meta
+
+    def exists(
+        self, path: str,
+    ):
+        """
+        Check if the file under given path exists
+        """
+        return self.get(path, empty_fallback=False, mode="r").exists()
 
     def get(
         self, path: str, empty_fallback: bool = False, mode: str = "r"
