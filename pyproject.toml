@@ -23,6 +23,7 @@ semver = "^2.13.0"
 semantic-version = "^2.8.5"
 toml = "^0.10.2"
 fs = "^2.4.13"
+PyGithub = "^1.55"
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
