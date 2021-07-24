@@ -218,7 +218,9 @@ class DVCLocalCli:
                 current_remote_name = config_key.replace("'remote ", "")[1:-2]
                 storage_conf = config[config_key]
                 if current_remote_name == remote_name:
-                    old_key_value, storage_conf[key] = storage_conf[key], value
+                     if key in storage_conf:
+                         old_key_value = storage_conf[key]
+                     storage_conf[key] = value
                 config[key] = storage_conf
         with open(config_path, "w") as configfile:
             config.write(configfile)
