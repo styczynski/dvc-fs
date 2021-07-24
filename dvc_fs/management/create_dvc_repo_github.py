@@ -15,7 +15,7 @@ from dvc_fs.logs import LOGS
 from .exceptions import DVCRepoCreationError, DVCMissingGithubToken
 from .remotes import DVCRemoteStorage, DVCS3RemoteStorage
 
-ENV_VARIABLES_WITH_GIT_TOKEN = ["GITHUB_TOKEN"]
+ENV_VARIABLES_WITH_GIT_TOKEN = ["GITHUB_TOKEN", "DVC_GITHUB_REPO_TOKEN"]
 
 @dataclass
 class GithubDVCRepo:
