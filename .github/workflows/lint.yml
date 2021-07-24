@@ -2,13 +2,11 @@ name: Build and test
 
 on:
   push:
-    branches: [ master ]
-  pull_request:
     branches:
       - "**"
 
 jobs:
-  build_and_test:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -32,13 +30,8 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Install project
         run: poetry install --no-interaction
-      - name: Run tests
-        env:
-          DVC_GITHUB_REPO_TOKEN: ${{ secrets.DVC_GITHUB_REPO_TOKEN }}
+      - name: Lint project
         run: |
-          source .venv/bin/activate
-          pytest tests/
-          coverage report
-      - name: Build package
-        run: poetry build
+          make lint
+
 
