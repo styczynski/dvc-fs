@@ -1,4 +1,6 @@
+import os
 from abc import ABCMeta, abstractmethod
+from typing import Optional, Dict
 
 from dvc_fs.logs import LOGS
 
@@ -23,6 +25,12 @@ class DVCRemoteStorage(metaclass=ABCMeta):
     def get_url(self) -> str:
         raise Exception(
             "Operation is not supported: get_url() invoked on abstract base class - DVCRemoteStorage"
+        )
+
+    @abstractmethod
+    def get_storage_conf(self) -> Optional[Dict[str, str]]:
+        raise Exception(
+            "Operation is not supported: get_conf() invoked on abstract base class - DVCRemoteStorage"
         )
 
 
@@ -59,6 +67,14 @@ class DVCS3RemoteStorage(DVCRemoteStorage):
                     ),
                 )
 
+    def get_storage_conf(self) -> Optional[Dict[str, str]]:
+        conf: Dict[str, str] = dict()
+        if "AWS_ACCESS_KEY_ID" in os.environ:
+            conf["access_key_id"] = os.environ["AWS_ACCESS_KEY_ID"]
+        if "AWS_SECRET_ACCESS_KEY" in os.environ:
+            conf["secret_access_key"] = os.environ["AWS_SECRET_ACCESS_KEY"]
+        return conf
+
     def remove(self):
         import boto3
 
@@ -86,3 +102,7 @@ class DVCExternalRemoteStorage(DVCRemoteStorage):
 
     def get_url(self) -> str:
         return self.url
+
+    def get_storage_conf(self) -> Optional[Dict[str, str]]:
+        return None
+
