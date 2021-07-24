@@ -5,4 +5,3 @@ with DVCFS(
 ) as fs:
     for path in ["test_file1.txt", "dir/test_file2.txt"]:
         print(f"Does file {path} exists? {fs.exists(path)}")
-

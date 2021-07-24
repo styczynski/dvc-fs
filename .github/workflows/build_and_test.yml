@@ -32,6 +32,8 @@ jobs:
         run: poetry install --no-interaction --no-root
       - name: Install project
         run: poetry install --no-interaction
+      - name: Install DVC
+        run: pip install 'dvc[s3]'
       - name: Run tests
         env:
           DVC_GITHUB_REPO_TOKEN: ${{ secrets.DVC_GITHUB_REPO_TOKEN }}

@@ -1,6 +1,7 @@
+from typing import List, Union
+
 from git import exc
 from github import GithubException
-from typing import Union, List
 
 
 class DVCRepoCreationError(Exception):
@@ -13,7 +14,10 @@ class DVCRepoCreationError(Exception):
     repo: str
 
     def __init__(
-        self, repo: str, api_provider_name: str, git_exception: Union[exc.GitError, GithubException]
+        self,
+        repo: str,
+        api_provider_name: str,
+        git_exception: Union[exc.GitError, GithubException],
     ):
         self.git_exception = git_exception
         self.api_provider_name = api_provider_name
@@ -29,6 +33,8 @@ class DVCMissingGithubToken(Exception):
         self,
         searched_env_variables: List[str],
     ):
-        super().__init__(f"Cannot retrieve Github Personal Access Token. "
-                         f"Please create one and specify github_token= parameter "
-                         f"or one of the following env variables: {', '.join(searched_env_variables)}")
+        super().__init__(
+            f"Cannot retrieve Github Personal Access Token. "
+            f"Please create one and specify github_token= parameter "
+            f"or one of the following env variables: {', '.join(searched_env_variables)}"
+        )
