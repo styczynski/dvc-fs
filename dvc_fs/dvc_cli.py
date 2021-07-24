@@ -221,7 +221,7 @@ class DVCLocalCli:
                      if key in storage_conf:
                          old_key_value = storage_conf[key]
                      storage_conf[key] = value
-                config[key] = storage_conf
+                config[config_key] = storage_conf
         with open(config_path, "w") as configfile:
             config.write(configfile)
         return old_key_value
