@@ -205,13 +205,20 @@ class DVCLocalCli:
 
     def init_dvc(self, storage_url: Optional[str] = None):
         if not os.path.isdir(os.path.join(self.working_path, ".dvc")):
-            LOGS.dvc.debug(f"Initializing DVC repo (path {self.working_path}). Storage is {'' if storage_url is not None else 'not '}configured")
+            LOGS.dvc.debug(
+                f"Initializing DVC repo (path {self.working_path}). "
+                f"Storage is {'' if storage_url is not None else 'not '}configured"
+            )
             self._execute_call(["init"])
             if storage_url is not None:
-                LOGS.dvc.debug(f"Initializing DVC repo storage")
-                self._execute_call(["remote", "add", "-d", "storage", storage_url])
+                LOGS.dvc.debug("Initializing DVC repo storage")
+                self._execute_call(
+                    ["remote", "add", "-d", "storage", storage_url]
+                )
         else:
-            LOGS.dvc.debug(f"DVC repo won't be initialized because .dvc folder already exists! (path {self.working_path})")
+            LOGS.dvc.debug(
+                f"DVC repo won't be initialized because .dvc folder already exists! (path {self.working_path})"
+            )
 
     def add(self, path: str):
         """

@@ -2,20 +2,22 @@ import os
 import random
 import string
 from dataclasses import dataclass
-from typing import Optional, List, Tuple
+from typing import List, Optional, Tuple
 
 from fs.base import FS
 from git import exc
 from github import Github, GithubException
 
-from dvc_fs.client import clone_repo, Client
+from dvc_fs.client import Client, clone_repo
 from dvc_fs.dvc_upload import DVCUpload
 from dvc_fs.fs import DVCFS
 from dvc_fs.logs import LOGS
-from .exceptions import DVCRepoCreationError, DVCMissingGithubToken
+
+from .exceptions import DVCMissingGithubToken, DVCRepoCreationError
 from .remotes import DVCRemoteStorage, DVCS3RemoteStorage
 
 ENV_VARIABLES_WITH_GIT_TOKEN = ["GITHUB_TOKEN", "DVC_GITHUB_REPO_TOKEN"]
+
 
 @dataclass
 class GithubDVCRepo:
@@ -39,9 +41,7 @@ class GithubDVCRepo:
             repo = org.get_repo(self.repo_name)
             repo.delete()
         except GithubException as e:
-            raise DVCRepoCreationError(
-                self.debug_repo_url, "Github", e
-            )
+            raise DVCRepoCreationError(self.debug_repo_url, "Github", e)
 
     def __enter__(self) -> FS:
         if self._fs is None:
@@ -73,7 +73,9 @@ def create_github_dvc_temporary_repo_with_s3(
     github_token: Optional[str] = None,
 ) -> GithubDVCRepo:
     assert len(repo_name_prefix) > 0
-    random_postfix = ''.join(random.choices(string.ascii_lowercase + string.digits, k=20))
+    random_postfix = "".join(
+        random.choices(string.ascii_lowercase + string.digits, k=20)
+    )
     repo_name = f"{repo_name_prefix}{random_postfix}"
     return create_github_dvc_repo(
         owner,
@@ -101,9 +103,13 @@ def create_github_dvc_repo(
         org = g.get_organization(owner)
 
         if github_repo_exists:
-            LOGS.create_dvc_repo.debug(f"Repo {repo_name} won't be created as github_repo_exists is set to True")
+            LOGS.create_dvc_repo.debug(
+                f"Repo {repo_name} won't be created as github_repo_exists is set to True"
+            )
         else:
-            LOGS.create_dvc_repo.debug(f"Create new repository (owner will be {owner})")
+            LOGS.create_dvc_repo.debug(
+                f"Create new repository (owner will be {owner})"
+            )
             org.create_repo(name=repo_name, auto_init=True, private=True)
         repo_url = f"https://{github_token}@github.com/{owner}/{repo_name}.git"
 
@@ -117,9 +123,7 @@ def create_github_dvc_repo(
         else:
             cloned_repo.dvc.init_dvc()
     except GithubException as e:
-        raise DVCRepoCreationError(
-            debug_repo_url, "Github", e
-        )
+        raise DVCRepoCreationError(debug_repo_url, "Github", e)
 
     try:
         LOGS.create_dvc_repo.debug("Add DVC files to git")
@@ -131,9 +135,7 @@ def create_github_dvc_repo(
         LOGS.create_dvc_repo.debug("Git push")
         cloned_repo.repo.remotes.origin.push()
     except exc.GitError as e:
-        raise DVCRepoCreationError(
-            debug_repo_url, "Github", e
-        )
+        raise DVCRepoCreationError(debug_repo_url, "Github", e)
 
     client = Client(repo_url)
     assert len(client.list_files()) == 0

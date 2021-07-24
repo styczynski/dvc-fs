@@ -1,4 +1,5 @@
 from abc import ABCMeta, abstractmethod
+
 from dvc_fs.logs import LOGS
 
 
@@ -30,7 +31,12 @@ class DVCS3RemoteStorage(DVCRemoteStorage):
     create_bucket: bool
     default_region: str
 
-    def __init__(self, bucket_name: str, create_bucket: bool = True, deafult_region: str = "eu-central-1"):
+    def __init__(
+        self,
+        bucket_name: str,
+        create_bucket: bool = True,
+        deafult_region: str = "eu-central-1",
+    ):
         super().__init__()
         self.bucket_name = bucket_name
         self.create_bucket = create_bucket
@@ -38,18 +44,25 @@ class DVCS3RemoteStorage(DVCRemoteStorage):
 
     def init_storage(self):
         import boto3
+
         if self.create_bucket:
-            s3 = boto3.resource('s3')
+            s3 = boto3.resource("s3")
             bucket = s3.Bucket(self.bucket_name)
             if not bucket.creation_date:
-                LOGS.dvc_s3_remote_storage.debug(f"Create DVC S3 bucket for storage: {self.bucket_name}")
-                s3.create_bucket(Bucket=self.bucket_name, CreateBucketConfiguration=dict(
-                    LocationConstraint=self.default_region,
-                ))
+                LOGS.dvc_s3_remote_storage.debug(
+                    f"Create DVC S3 bucket for storage: {self.bucket_name}"
+                )
+                s3.create_bucket(
+                    Bucket=self.bucket_name,
+                    CreateBucketConfiguration=dict(
+                        LocationConstraint=self.default_region,
+                    ),
+                )
 
     def remove(self):
         import boto3
-        s3 = boto3.resource('s3')
+
+        s3 = boto3.resource("s3")
         bucket = s3.Bucket(self.bucket_name)
         bucket.objects.all().delete()
 

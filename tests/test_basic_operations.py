@@ -1,10 +1,14 @@
-import string
 import random
-from dvc_fs.management.create_dvc_repo_github import create_github_dvc_temporary_repo_with_s3
+import string
+
+from dvc_fs.management.create_dvc_repo_github import \
+    create_github_dvc_temporary_repo_with_s3
 
 
 def test_basic_operations():
-    with create_github_dvc_temporary_repo_with_s3("covid-genomics", "temporary_dvc_repo") as fs:
+    with create_github_dvc_temporary_repo_with_s3(
+        "covid-genomics", "temporary_dvc_repo"
+    ) as fs:
 
         # List of files that will be created
         files_to_create = ["test1.txt", "dir/test2.txt", "dir/dir/test3.txt"]
@@ -21,10 +25,14 @@ def test_basic_operations():
             assert fs.exists(path)
 
         # Check if exists(...) returns False for files that do not exist
-        for path in ["test2.txt", "test.1.txt", "dir/dir/test1.txt", "dir/test1.txt"]:
-            assert (not fs.exists(path))
+        for path in [
+            "test2.txt",
+            "test.1.txt",
+            "dir/dir/test1.txt",
+            "dir/test1.txt",
+        ]:
+            assert not fs.exists(path)
 
         # Check if fs.walk returns correct files
         list_of_files = set(fs.walk.files())
         assert list_of_files == set([f"/{path}" for path in files_to_create])
-
