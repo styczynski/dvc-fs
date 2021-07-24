@@ -119,7 +119,10 @@ def create_github_dvc_repo(
         LOGS.create_dvc_repo.debug("Init DVC storage")
         if remote_storage is not None:
             remote_storage.init_storage()
-            cloned_repo.dvc.init_dvc(remote_storage.get_url())
+            cloned_repo.dvc.init_dvc(
+                remote_storage.get_url(),
+                additional_storage_settings=remote_storage.get_storage_conf(),
+            )
         else:
             cloned_repo.dvc.init_dvc()
     except GithubException as e:

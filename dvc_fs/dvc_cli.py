@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 import threading
+import configparser
 from io import StringIO
 
 import semantic_version
@@ -26,12 +27,11 @@ except ModuleNotFoundError:
     call_dvc_main = None
     call_dvc_main_version = None
 
-
-from typing import Callable, List, Optional
+from typing import Callable, List, Optional, Dict
 
 
 def get_sys_exit_noop(
-    original_callback: Callable[[int], None]
+        original_callback: Callable[[int], None]
 ) -> Callable[[int], None]:
     """
     Create fake handler for system exit to prevent command line from killing Python
@@ -85,10 +85,10 @@ class DVCLocalCli:
         try:
             text = (
                 out.decode()
-                .split("\n")[0]
-                .replace("DVC version: ", "")
-                .split("(")[0]
-                .replace(" ", "")
+                    .split("\n")[0]
+                    .replace("DVC version: ", "")
+                    .split("(")[0]
+                    .replace(" ", "")
             )
             ver = semantic_version.Version(text)
             if not get_config().dvc_version_constraint.match(ver):
@@ -102,13 +102,13 @@ class DVCLocalCli:
             raise DVCMissingExecutableError()
 
     def _execute_call(
-        self,
-        args: List[str],
-        path: Optional[str] = None,
-        collect_output: bool = True,
-        input: Optional[str] = None,
-        use_shell: bool = True,
-        spawn_process: bool = False,
+            self,
+            args: List[str],
+            path: Optional[str] = None,
+            collect_output: bool = True,
+            input: Optional[str] = None,
+            use_shell: bool = True,
+            spawn_process: bool = False,
     ) -> str:
         """
         Helper method to execute dvc command.
@@ -128,7 +128,7 @@ class DVCLocalCli:
             use_shell = True
         else:
             if not get_config().dvc_version_constraint.match(
-                call_dvc_main_version
+                    call_dvc_main_version
             ):
                 # DVC package has invalid version
                 use_shell = True
@@ -203,7 +203,31 @@ class DVCLocalCli:
 
         return res
 
-    def init_dvc(self, storage_url: Optional[str] = None):
+    def dvc_set_storage_config_option(
+            self,
+            remote_name: str,
+            key: str,
+            value: str,
+    ) -> Optional[str]:
+        config = configparser.ConfigParser()
+        config_path = os.path.join(self.working_path, ".dvc", "config")
+        config.read(config_path)
+        old_key_value: Optional[str] = None
+        for config_key in config:
+            if config_key.startswith("'remote "):
+                current_remote_name = config_key.replace("'remote ", "")[1:-2]
+                storage_conf = config[config_key]
+                if current_remote_name == remote_name:
+                    old_key_value, storage_conf[key] = storage_conf[key], value
+                config[key] = storage_conf
+        with open(config_path, "w") as configfile:
+            config.write(configfile)
+        return old_key_value
+
+    def init_dvc(self,
+                 storage_url: Optional[str] = None,
+                 additional_storage_settings: Optional[Dict[str, str]] = None,
+                 ):
         if not os.path.isdir(os.path.join(self.working_path, ".dvc")):
             LOGS.dvc.debug(
                 f"Initializing DVC repo (path {self.working_path}). "
@@ -215,6 +239,10 @@ class DVCLocalCli:
                 self._execute_call(
                     ["remote", "add", "-d", "storage", storage_url]
                 )
+            if additional_storage_settings and storage_url:
+                for key in additional_storage_settings:
+                    LOGS.dvc.debug(f"Configure storage option {key} for the repository")
+                    self.dvc_set_storage_config_option("storage", key, additional_storage_settings[key])
         else:
             LOGS.dvc.debug(
                 f"DVC repo won't be initialized because .dvc folder already exists! (path {self.working_path})"
