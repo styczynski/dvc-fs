@@ -35,6 +35,8 @@ jobs:
       - name: Run tests
         env:
           DVC_GITHUB_REPO_TOKEN: ${{ secrets.DVC_GITHUB_REPO_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           source .venv/bin/activate
           pytest tests/
