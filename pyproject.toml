@@ -65,7 +65,7 @@ exclude = '''
 '''
 
 [tool.flakehell]
-exclude = ["README.rst", "README.md"]
+exclude = ["README.rst", "README.md", ".venv"]
 format = "colored"
 max_line_length = 120
 show_source = true
