@@ -42,7 +42,7 @@ jobs:
           AWS_DEFAULT_REGION: "eu-central-1"
         run: |
           source .venv/bin/activate
-          coverage run -m pytest tests/
+          coverage run --omit 'venv/*' -m pytest tests/
           coverage report
       - name: Build package
         run: poetry build
