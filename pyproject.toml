@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dvc_fs"
-version = "0.7.0"
+version = "0.7.2"
 description = "DVC API/filesystem utilities"
 authors = ["Piotr Styczyński <piotrsty1@gmail.com>"]
 readme = "README.md"
@@ -23,6 +23,9 @@ semver = "^2.13.0"
 semantic-version = "^2.8.5"
 toml = "^0.10.2"
 fs = "^2.4.13"
+PyGithub = ">=1.50"
+coverage = "^5.5"
+cffi = ">=1.12.3"
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
@@ -64,7 +67,7 @@ exclude = '''
 '''
 
 [tool.flakehell]
-exclude = ["README.rst", "README.md"]
+exclude = ["README.rst", "README.md", ".venv"]
 format = "colored"
 max_line_length = 120
 show_source = true

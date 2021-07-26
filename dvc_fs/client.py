@@ -526,7 +526,8 @@ class Client:
         return meta
 
     def exists(
-        self, path: str,
+        self,
+        path: str,
     ):
         """
         Check if the file under given path exists
