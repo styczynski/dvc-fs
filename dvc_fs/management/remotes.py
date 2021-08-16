@@ -43,12 +43,12 @@ class DVCS3RemoteStorage(DVCRemoteStorage):
         self,
         bucket_name: str,
         create_bucket: bool = True,
-        deafult_region: str = "eu-central-1",
+        default_region: str = "eu-central-1",
     ):
         super().__init__()
         self.bucket_name = bucket_name
         self.create_bucket = create_bucket
-        self.default_region = deafult_region
+        self.default_region = default_region
 
     def init_storage(self):
         import boto3
@@ -81,6 +81,7 @@ class DVCS3RemoteStorage(DVCRemoteStorage):
         s3 = boto3.resource("s3")
         bucket = s3.Bucket(self.bucket_name)
         bucket.objects.all().delete()
+        bucket.delete()
 
     def get_url(self) -> str:
         return f"s3://{self.bucket_name}/dvc"
