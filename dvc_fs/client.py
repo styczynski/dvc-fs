@@ -103,6 +103,7 @@ def dvc_open_clone(
     path: str,
     empty_fallback: bool = False,
     client: Any = None,
+    is_binary: bool = False,
 ) -> TextIO:
     """
     Open descriptor to the DVC file
@@ -119,18 +120,25 @@ def dvc_open_clone(
         os.path.join(client._repo_cache.clone_path, f"{path}.dvc")
     ):
         if empty_fallback:
+            if is_binary:
+                return io.BytesIO()
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
     # Pull the file
     client._repo_cache.dvc.pull_path(path)
     if not os.path.isfile(os.path.join(client._repo_cache.clone_path, path)):
         if empty_fallback:
+            if is_binary:
+                return io.BytesIO()
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
     with open(
-        os.path.join(client._repo_cache.clone_path, path), "r"
+        os.path.join(client._repo_cache.clone_path, path), ("r" if not is_binary else "rb")
     ) as dvc_file:
-        input_stream = io.StringIO(dvc_file.read())
+        if is_binary:
+            input_stream = io.BytesIO(dvc_file.read())
+        else:
+            input_stream = io.StringIO(dvc_file.read())
     return input_stream
 
 
@@ -143,6 +151,7 @@ try:
         path: str,
         empty_fallback: bool = False,
         client: Any = None,
+        is_binary: bool = False,
     ) -> TextIO:
         """
         Open descriptor to the DVC file
@@ -162,13 +171,18 @@ try:
             return dvc_fs.open(
                 path,
                 repo=repo,
+                mode="r" if not is_binary else "rb",
             )
         except dvc.exceptions.FileMissingError:
             if empty_fallback:
+                if is_binary:
+                    return io.BytesIO()
                 return io.StringIO()
             raise DVCFileMissingError(repo, path)
         except dvc.exceptions.PathMissingError:
             if empty_fallback:
+                if is_binary:
+                    return io.BytesIO()
                 return io.StringIO()
             raise DVCFileMissingError(repo, path)
 
@@ -253,6 +267,7 @@ class DVCFile:
                     self.path,
                     empty_fallback=self.empty_fallback,
                     client=self.client,
+                    is_binary=self.mode in ["rb", "rb+"],
                 )
             else:
                 self.client._repo_cache = clone_repo(
