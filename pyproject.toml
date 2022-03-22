@@ -16,16 +16,11 @@ publish = 'publish:publish'
 
 [tool.poetry.dependencies]
 python = "^3.8"
-SQLAlchemy = "<1.4.0"
 GitPython = "^3.1.14"
-typer = "^0.3.2"
-semver = "^2.13.0"
-semantic-version = "^2.8.5"
 toml = "^0.10.2"
 fs = "^2.4.13"
 PyGithub = ">=1.50"
 coverage = "^5.5"
-cffi = ">=1.12.3"
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
