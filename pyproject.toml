@@ -21,6 +21,7 @@ toml = "^0.10.2"
 fs = "^2.4.13"
 PyGithub = ">=1.50"
 coverage = "^5.5"
+semantic-version = "^2.9.0"
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
