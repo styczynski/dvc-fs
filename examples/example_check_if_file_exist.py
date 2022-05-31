@@ -1,7 +1,8 @@
 from dvc_fs.fs import DVCFS
+from os import environ
 
 with DVCFS(
-    "https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git"
+    f"https://{environ['GIT_TOKEN']}@github.com/covid-genomics/data-artifacts.git"
 ) as fs:
-    for path in ["test_file1.txt", "dir/test_file2.txt"]:
+    for path in ["cirk/BVic HIs_SH2021.xlsx", "epiflu/A_H1_N1_2021_01.fasta"]:
         print(f"Does file {path} exists? {fs.exists(path)}")
