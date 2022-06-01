@@ -239,7 +239,7 @@ class DVCLocalCli:
             if storage_url is not None:
                 LOGS.dvc.debug("Initializing DVC repo storage")
                 self._execute_call(
-                    ["remote", "add", "-d", "storage", storage_url]
+                    ["remote", "add", "-d", "storage", f"'{storage_url}'"]
                 )
             if additional_storage_settings and storage_url:
                 for key in additional_storage_settings:
@@ -256,13 +256,13 @@ class DVCLocalCli:
         :param path: Path to the DVC file
           (note this is path to the DVC metafile so the path should end with .dvc extension)
         """
-        self._execute_call(["add", path])
+        self._execute_call(["add", f"'{path}'"])
 
     def pull_path(self, file_path: str):
         """
         Pull DVC repo
         """
-        self._execute_call(["pull", file_path])
+        self._execute_call(["pull", f"'{file_path}'"])
 
     def push(self):
         """
