@@ -22,6 +22,7 @@ fs = "^2.4.13"
 PyGithub = ">=1.50"
 coverage = "^5.5"
 semantic-version = "^2.9.0"
+dvc = {extras = ["azure"], version = "^2.10.2"}
 
 [tool.poetry.extras]
 dvc = ["s3", "dvc>=2.0.18"]
