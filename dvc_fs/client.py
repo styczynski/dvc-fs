@@ -67,7 +67,6 @@ EXCLUDED_GIT_SEARCH_DIRECTORIES = [
 def clone_repo(
     dvc_repo: str,
     temp_path: Optional[str] = None,
-    existing_repo_path:Optional[str]=None,
     repo: Optional[ClonedRepo] = None,
 ) -> ClonedRepo:
     """
