@@ -67,6 +67,7 @@ EXCLUDED_GIT_SEARCH_DIRECTORIES = [
 def clone_repo(
     dvc_repo: str,
     temp_path: Optional[str] = None,
+    existing_repo_path:Optional[str]=None,
     repo: Optional[ClonedRepo] = None,
 ) -> ClonedRepo:
     """
@@ -137,7 +138,8 @@ def dvc_open_clone(
 try:
     import dvc.api as dvc_fs
     import dvc.exceptions
-
+    from dvc.version import __version__ as dvc_api_version
+    from dvc.scm import CloneError
     def dvc_open(
         repo: str,
         path: str,
@@ -155,6 +157,7 @@ try:
         """
         try:
             # Url will fail if the file is missing
+            LOGS.dvc_hook.info(dvc_api_version)
             dvc.api.get_url(
                 path,
                 repo=repo,
@@ -163,6 +166,13 @@ try:
                 path,
                 repo=repo,
             )
+        except CloneError as err:
+            LOGS.dvc_hook.info(err)
+            return dvc_open_clone(
+                        repo=repo,
+                        path=path,
+                        empty_fallback = empty_fallback,
+                        client= client)
         except dvc.exceptions.FileMissingError:
             if empty_fallback:
                 return io.StringIO()
@@ -171,7 +181,6 @@ try:
             if empty_fallback:
                 return io.StringIO()
             raise DVCFileMissingError(repo, path)
-
 
 except ModuleNotFoundError:
     # Fallback when DVC api module is not available
