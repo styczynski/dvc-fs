@@ -337,6 +337,7 @@ class Client:
         self,
         dvc_repo: str,
         temp_path: Optional[str] = None,
+        clone_branch:Optional[str]=None,
     ):
         """
         :param dvc_repo: Clone URL for the GIT repo that has DVC configured

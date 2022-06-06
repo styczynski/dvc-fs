@@ -22,6 +22,7 @@ class DVCFS(OSFS):
         temp_dir: Optional[Text] = None,
         auto_clean: bool = True,
         ignore_clean_errors: bool = True,
+        clone_branch:Optional[str]=None,
     ):
         self._cleaned = False
         self.identifier = identifier
