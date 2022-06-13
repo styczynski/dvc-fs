@@ -36,3 +36,15 @@ def test_basic_operations():
         # Check if fs.walk returns correct files
         list_of_files = set(fs.walk.files())
         assert list_of_files == set([f"/{path}" for path in files_to_create])
+
+        # Check for removing files
+        for path in files_to_create:
+            assert fs.exists(path)
+
+            # Now remove file and check if exists() correctly returns False
+            fs.remove(path)
+            assert not fs.exists(path)
+        
+        # We removed all files so the walk should return 0
+        list_of_files = set(fs.walk.files())
+        assert len(list_of_files) == 0
