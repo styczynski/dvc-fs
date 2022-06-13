@@ -67,6 +67,7 @@ EXCLUDED_GIT_SEARCH_DIRECTORIES = [
 def clone_repo(
     dvc_repo: str,
     temp_path: Optional[str] = None,
+    existing_file_path:Optional[str]=None,
     repo: Optional[ClonedRepo] = None,
 ) -> ClonedRepo:
     """
@@ -75,34 +76,46 @@ def clone_repo(
     :param temp_path: Optional temporary path to store fetched data
     :returns: Cloned repo access object
     """
-    if repo is not None:
-        return repo
-    if temp_path is None:
-        temp_dir = tempfile.TemporaryDirectory()
+    if existing_file_path and os.path.exists(existing_file_path):
+        dvc = DVCLocalCli(clone_path)
+        return ClonedRepo(
+            clone_path=existing_file_path,
+            temp_dir=tempfile.TemporaryDirectory(dir=existing_file_path,delete=False),
+            repo=Repo(existing_file_path),
+            dvc=dvc,
+        )
     else:
-        temp_dir = tempfile.TemporaryDirectory(dir=temp_path)
-    clone_path = os.path.join(temp_dir.name, "repo")
-    if os.path.isdir(clone_path):
-        shutil.rmtree(clone_path)
-    os.makedirs(clone_path, exist_ok=True)
-    try:
-        repo = Repo.clone_from(dvc_repo, clone_path)
-    except exc.GitError as e:
-        raise DVCGitRepoNotAccessibleError(dvc_repo, e)
-    dvc = DVCLocalCli(clone_path)
-    return ClonedRepo(
-        clone_path=clone_path,
-        temp_dir=temp_dir,
-        repo=repo,
-        dvc=dvc,
-    )
+        if repo is not None:
+            return repo
+        if temp_path is None:
+            temp_dir = tempfile.TemporaryDirectory()
+        else:
+            temp_dir = tempfile.TemporaryDirectory(dir=temp_path)
+        clone_path = os.path.join(temp_dir.name, "repo")
+        if os.path.isdir(clone_path):
+            shutil.rmtree(clone_path)
+        os.makedirs(clone_path, exist_ok=True)
+        try:
+            repo = Repo.clone_from(dvc_repo, clone_path)
+        except exc.GitError as e:
+            raise DVCGitRepoNotAccessibleError(dvc_repo, e)
+        dvc = DVCLocalCli(clone_path)
+        return ClonedRepo(
+            clone_path=clone_path,
+            temp_dir=temp_dir,
+            repo=repo,
+            dvc=dvc,
+        )
+
 
 
 def dvc_open_clone(
     repo: str,
     path: str,
     empty_fallback: bool = False,
+    existing_file_path:Optional[str]=None,
     client: Any = None,
+    is_binary: bool = False,
 ) -> TextIO:
     """
     Open descriptor to the DVC file
@@ -114,23 +127,30 @@ def dvc_open_clone(
     :returns: Descriptor to the file contents
     """
     repo_url = repo
-    client._repo_cache = clone_repo(repo, repo=client._repo_cache)
+    client._repo_cache = clone_repo(repo,existing_file_path=existing_file_path, repo=client._repo_cache)
     if not os.path.isfile(
         os.path.join(client._repo_cache.clone_path, f"{path}.dvc")
     ):
         if empty_fallback:
+            if is_binary:
+                return io.BytesIO()
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
     # Pull the file
     client._repo_cache.dvc.pull_path(path)
     if not os.path.isfile(os.path.join(client._repo_cache.clone_path, path)):
         if empty_fallback:
+            if is_binary:
+                return io.BytesIO()
             return io.StringIO()
         raise DVCFileMissingError(repo_url, path)
     with open(
-        os.path.join(client._repo_cache.clone_path, path), "r"
+        os.path.join(client._repo_cache.clone_path, path), ("r" if not is_binary else "rb")
     ) as dvc_file:
-        input_stream = io.StringIO(dvc_file.read())
+        if is_binary:
+            input_stream = io.BytesIO(dvc_file.read())
+        else:
+            input_stream = io.StringIO(dvc_file.read())
     return input_stream
 
 
@@ -143,6 +163,7 @@ try:
         repo: str,
         path: str,
         empty_fallback: bool = False,
+        is_binary: bool = False,
         client: Any = None,
     ) -> TextIO:
         """
@@ -164,20 +185,26 @@ try:
             return dvc_fs.open(
                 path,
                 repo=repo,
+                mode="r" if not is_binary else "rb",
             )
         except CloneError as err:
-            LOGS.dvc_hook.info(err)
             return dvc_open_clone(
                         repo=repo,
                         path=path,
+                        existing_file_path=None,
                         empty_fallback = empty_fallback,
+                        is_binary=is_binary,
                         client= client)
         except dvc.exceptions.FileMissingError:
             if empty_fallback:
+                if is_binary:
+                    return io.BytesIO()
                 return io.StringIO()
             raise DVCFileMissingError(repo, path)
         except dvc.exceptions.PathMissingError:
             if empty_fallback:
+                if is_binary:
+                    return io.BytesIO()
                 return io.StringIO()
             raise DVCFileMissingError(repo, path)
 
@@ -261,6 +288,7 @@ class DVCFile:
                     self.path,
                     empty_fallback=self.empty_fallback,
                     client=self.client,
+                    is_binary=self.mode in ["rb", "rb+"],
                 )
             else:
                 self.client._repo_cache = clone_repo(
@@ -309,6 +337,7 @@ class Client:
         self,
         dvc_repo: str,
         temp_path: Optional[str] = None,
+        clone_branch:Optional[str]=None,
     ):
         """
         :param dvc_repo: Clone URL for the GIT repo that has DVC configured
@@ -444,7 +473,7 @@ class Client:
     ) -> DVCUpdateMetadata:
         """
         Update given files and upload them to DVC repo.
-        The procedure involves pushing DVC changes and commiting
+        The procedure involves pushing DVC changes and committing
         changed metadata files back to the GIT repo.
 
         By default the commit message is as follows:
@@ -540,7 +569,7 @@ class Client:
         """
         Check if the file under given path exists
         """
-        return self.get(path, empty_fallback=False, mode="r").exists()
+        return self.get(path, empty_fallback=False, mode="rb").exists()
 
     def get(
         self, path: str, empty_fallback: bool = False, mode: str = "r"
