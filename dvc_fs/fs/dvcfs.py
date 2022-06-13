@@ -5,6 +5,9 @@ import shutil
 import tempfile
 from typing import Collection, Iterator, List, Optional, Text, Tuple
 
+from dvc_fs.stats import DVCDownloadMetadata, DVCUpdateMetadata
+from dvc_fs.dvc_upload import DVCUpload
+
 import six
 from fs import errors
 from fs.info import Info
@@ -56,6 +59,18 @@ class DVCFS(OSFS):
 
     def exists(self, path: Text) -> bool:
         return self._client.exists(path)
+
+    def bulk_update(
+        self,
+        updated_files: List[DVCUpload],
+        commit_message: Optional[str] = None,
+        commit_message_extra: Optional[str] = None,
+    ) -> DVCUpdateMetadata:
+        return self._client.update(
+            updated_files=updated_files,
+            commit_message=commit_message,
+            commit_message_extra=commit_message_extra,
+        )
 
     def readtext(
         self,
