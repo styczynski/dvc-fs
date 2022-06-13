@@ -249,6 +249,18 @@ class DVCLocalCli:
             LOGS.dvc.debug(
                 f"DVC repo won't be initialized because .dvc folder already exists! (path {self.working_path})"
             )
+    
+    def cleanup_remote(self):
+        self._execute_call(["gc", "--workspace", "--cloud", "--all-branches"])
+        
+    def remove(self, path: str):
+        """
+        Add given path to DVC
+        :param path: Path to the DVC file
+          (note this is path to the DVC metafile so the path should end with .dvc extension)
+        """
+        self._execute_call(["remove", f"'{path}.dvc'"])
+
 
     def add(self, path: str):
         """

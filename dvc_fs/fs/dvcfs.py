@@ -118,6 +118,12 @@ class DVCFS(OSFS):
             iter_info = itertools.islice(iter_info, start, end)
         return iter_info
 
+    def remove(
+        self,
+        path: Text
+    ) -> None:
+        self._client.remove(removed_files=[path])
+
     def _scandir(
         self, path: Text, namespaces: Optional[Collection[Text]] = None
     ) -> Iterator[Info]:

@@ -214,15 +214,24 @@ except ModuleNotFoundError:
     dvc_open = dvc_open_clone
 
 
-def repo_add_dvc_files(repo: Repo, files: List[str]):
+def repo_add_dvc_files(
+    repo: Repo,
+    files: List[str],
+    delete_mode: bool = False,
+):
     """
     Add DVC metadata files corresponding to the given ones to the GIT stage.
     :param repo: GIT repository object
     :param files: List of file paths
+    :param delete_mode: If the flag is set to True adds files to commit for deletion.
+        If the flag is set to False adds files to commit for update.
     """
     dvc_files = [f"{file}.dvc" for file in files]
     for dvc_file in dvc_files:
-        repo.index.add([dvc_file])
+        if not delete_mode:
+            repo.index.add([dvc_file])
+        else:
+            repo.index.remove([dvc_file])
 
 
 @dataclass
@@ -464,6 +473,81 @@ class Client:
 
     def list_files(self, path=".") -> List[str]:
         return [meta.name for meta in self.scan_dir(path)]
+
+    def cleanup_remote(self):
+        """
+        Perform dvc gc operationon the DVC remote.
+        That means all the files that are not currently referenced in the repo are removed.
+        """
+        self._repo_cache.dvc.cleanup_remote(file)
+
+    def remove(
+        self,
+        removed_files: List[str],
+        commit_message: Optional[str] = None,
+        commit_message_extra: Optional[str] = None,
+    ) -> None:
+        """
+        Remove files and delete them.
+        The procedure involves pushing DVC changes and committing
+        changed metadata files back to the GIT repo.
+        
+        IMPORTANT NOTE:
+        This function does not remove actual data stored on remote.
+        To fully remove this data please run cleanup_remote() 
+
+        By default the commit message is as follows:
+           DVC Automatically removed files: <list of files specified>
+
+        :param updated_files: List of files to be uploaded as list of strings
+        :param commit_message: Optional GIT commit message
+        :param commit_message_extra: Optional extra commit message content
+        """
+        start = time.time()
+        if len(removed_files) == 0:
+            return None
+
+        if commit_message is None:
+            file_list_str = ", ".join(
+                [os.path.basename(file_path) for file_path in removed_files]
+            )
+            commit_message = (
+                f"DVC Automatically removed files: {file_list_str}"
+            )
+
+        if commit_message_extra is not None:
+            commit_message = f"{commit_message}\n{commit_message_extra}"
+
+        LOGS.dvc_hook.info("Remove files from DVC")
+        self._repo_cache = clone_repo(
+            self.dvc_repo, self.temp_path, repo=self._repo_cache
+        )
+        for file in removed_files:
+            self._repo_cache.dvc.remove(file)
+
+        LOGS.dvc_hook.info("Push DVC")
+        self._repo_cache.dvc.push()
+
+        try:
+            LOGS.dvc_hook.info("Add DVC removed files to git")
+            repo_add_dvc_files(
+                self._repo_cache.repo,
+                [file for file in removed_files],
+                delete_mode=True,
+            )
+
+            LOGS.dvc_hook.info("Commit")
+            commit = self._repo_cache.repo.index.commit(commit_message)
+
+            LOGS.dvc_hook.info("Git push")
+            self._repo_cache.repo.remotes.origin.push()
+        except exc.GitError as e:
+            raise DVCGitUpdateError(
+                self.dvc_repo, [file for file in updated_files], e
+            )
+
+        return None
+
 
     def update(
         self,
