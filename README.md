@@ -1,6 +1,10 @@
 # DVC filesystem abstraction layer (0.8.2)
 
-[![PyPI version](https://badge.fury.io/py/dvc-fs.svg)](https://badge.fury.io/py/dvc-fs) [![Build and test](https://github.com/covid-genomics/dvc-fs/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/covid-genomics/dvc-fs/actions/workflows/build_and_test.yml) [![Lint code](https://github.com/covid-genomics/dvc-fs/actions/workflows/lint.yml/badge.svg)](https://github.com/covid-genomics/dvc-fs/actions/workflows/lint.yml)
+[![PyPI version](https://badge.fury.io/py/dvc-fs.svg)](https://badge.fury.io/py/dvc-fs) [![Build and test](https://github.com/styczynski/dvc-fs/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/styczynski/dvc-fs/actions/workflows/build_and_test.yml) [![Lint code](https://github.com/styczynski/dvc-fs/actions/workflows/lint.yml/badge.svg)](https://github.com/styczynski/dvc-fs/actions/workflows/lint.yml)
+
+This package was developed by [@styczynski](https://github.com/styczynski/).
+<br/>**I am founder of biotech startup [Deepflare](https://deepflare.ai) and this project was created when I was co-founding the company to provide contributions to the public domain. Great thanks to [@hasanozdem1r](https://github.com/hasanozdem1r) who contributed a lot to this project!**
+
 
 This package provides high-level API work easy writing/reading/listing files inside the DVC.
 It can be used for automation systems integrated with data pipelines.
@@ -26,9 +30,9 @@ The dvc-fs package is integrated with [PyFilesystem](https://github.com/PyFilesy
 
 ```python
 from fs import open_fs
-fs1 = open_fs("dvc://github.com/covid-genomics/data-artifacts") # Clone by https
-fs2 = open_fs("dvc://ssh@github.com/covid-genomics/data-artifacts") # Clone by ssh
-fs3 = open_fs("dvc://<PAT>@github.com/covid-genomics/data-artifacts") # Clone by https with personal access token
+fs1 = open_fs("dvc://github.com/deepflare/data-artifacts") # Clone by https
+fs2 = open_fs("dvc://ssh@github.com/deepflare/data-artifacts") # Clone by ssh
+fs3 = open_fs("dvc://<PAT>@github.com/deepflare/data-artifacts") # Clone by https with personal access token
  # You can also use normal HTTPS and create env variable GIT_TOKEN
  # In that case Personal Access Token will be injected in the clone url
 ```
@@ -36,7 +40,7 @@ fs3 = open_fs("dvc://<PAT>@github.com/covid-genomics/data-artifacts") # Clone by
 And now the usage is as follows:
 ```python
 from fs import open_fs
-with open_fs("dvc://github.com/covid-genomics/data-artifacts") as fs:
+with open_fs("dvc://github.com/deepflare/data-artifacts") as fs:
     fs.writetext("fs_test/fasta2.txt", "TEST")
 ```
 
@@ -46,7 +50,7 @@ This method allows you to explicitly create DVCFS class in your applciation:
 
 ```python
 from dvc_fs.fs import DVCFS
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     for path in fs.walk.files():
         # Print all paths in repo
         print(path)
@@ -60,7 +64,7 @@ with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.g
 from dvc_fs.fs import DVCFS
 
 with DVCFS(
-    "https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git"
+    "https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git"
 ) as fs:
     for path in fs.walk.files():
         print(path)
@@ -73,7 +77,7 @@ from dvc_fs.fs import DVCFS
 from os import environ
 
 with DVCFS(
-    dvc_repo=f"https://{environ['GIT_TOKEN']}@github.com/covid-genomics/data-artifacts.git"
+    dvc_repo=f"https://{environ['GIT_TOKEN']}@github.com/deepflare/data-artifacts.git"
 ) as fs:
     for path in ["cirk//BVic HIs_SH2021.xlsx"]:
          print(fs.exists(path=path))
@@ -85,7 +89,7 @@ with DVCFS(
 from dvc_fs.fs import DVCFS
 
 with DVCFS(
-    "https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/data-artifacts.git"
+    "https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/data-artifacts.git"
 ) as fs:
     fs.writetext("data/to_remove.txt", "TEST STRING ABCDEF 123456")
     fs.remove("data/to_remove.txt")
@@ -96,7 +100,7 @@ with DVCFS(
 Read and write contents:
 ```python
 from dvc_fs.fs import DVCFS
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     contents = fs.readtext('data/1.txt')
     print(f"THIS IS CONTENTS: {contents}")
     fs.writetext("test.txt", contents+"!")
@@ -107,7 +111,7 @@ You can also directly use DVC high-level api via the Client:
 from dvc_fs.client import Client, DVCPathUpload
 
 # Git repo with DVC configured
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     fs.bulk_update([
         # Upload local file ~/local_file_path.txt to DVC repo under path data/1.txt
         DVCPathUpload("data/1.txt", "~/local_file_path.txt"),
@@ -120,7 +124,7 @@ The upload operator supports various types of data inputs that you can feed into
 ```python
 from dvc_fs import DVCStringUpload, DVCPathUpload
 from datetime import datetime
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     fs.bulk_update([
         DVCStringUpload("data/1.txt", f"This will be saved into DVC. Current time: {datetime.now()}"),
     ])
@@ -129,7 +133,7 @@ with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.g
 **Uploading local file using its path:**
 ```python
 from dvc_fs import DVCPathUpload
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     fs.bulk_update([
         DVCPathUpload("data/1.txt", "~/local_file_path.txt"),
     ])
@@ -138,7 +142,7 @@ with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.g
 **Upload content generated by a python function:**
 ```python
 from dvc_fs import DVCCallbackUpload
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     fs.bulk_update([
         DVCCallbackUpload("data/1.txt", lambda: "Test data"),
     ])
@@ -149,7 +153,7 @@ We can use `download` operation similarily to the `upload`. The syntax is the sa
 from dvc_fs import DVCCallbackDownload
 
 # Download DVC file data/1.txt and print it on the screen
-with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/covid-genomics/dvc_repo.git") as fs:
+with DVCFS("https://<GITHUB_PERSONAL_TOKEN>@github.com/deepflare/dvc_repo.git") as fs:
     fs.bulk_update([
         DVCCallbackDownload("data/1.txt", lambda content: print(content)),
     ])
