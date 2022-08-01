@@ -3,7 +3,7 @@
 [![PyPI version](https://badge.fury.io/py/dvc-fs.svg)](https://badge.fury.io/py/dvc-fs) [![Build and test](https://github.com/styczynski/dvc-fs/actions/workflows/build_and_test.yml/badge.svg)](https://github.com/styczynski/dvc-fs/actions/workflows/build_and_test.yml) [![Lint code](https://github.com/styczynski/dvc-fs/actions/workflows/lint.yml/badge.svg)](https://github.com/styczynski/dvc-fs/actions/workflows/lint.yml)
 
 This package was developed by [@styczynski](https://github.com/styczynski/).
-<br/>**I am founder of biotech startup [Deepflare](https://deepflare.ai) and this project was created when I was co-founding the company to provide contributions to the public domain. Great thanks to [@hasanozdem1r](https://github.com/hasanozdem1r) who contributed a lot to this project!**
+Great thanks to [@hasanozdem1r](https://github.com/hasanozdem1r) who contributed a lot to this project!**
 
 
 This package provides high-level API work easy writing/reading/listing files inside the DVC.
