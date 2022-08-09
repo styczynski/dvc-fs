@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dvc_fs"
-version = "0.8.2"
+version = "0.8.3"
 description = "DVC API/filesystem utilities"
 authors = ["Piotr Styczyński <piotrsty1@gmail.com>"]
 readme = "README.md"
